@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <title>Employer Dashboard — Joblyn</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,500;0,600;0,700;0,800;1,600&family=Source+Sans+3:wght@400;500;600;700&display=swap"
+          rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+    <link th:href="@{/css/style.css}" rel="stylesheet">
+</head>
+<body>
+
+<!-- ===== Navbar ===== -->
+<nav class="navbar navbar-expand-lg rj-navbar py-2">
+    <div class="container">
+
+        <!-- Left side - Project name -->
+        <a class="navbar-brand text-white fw-bold fs-4 text-decoration-none"
+           th:href="@{/}">
+            Joblyn
+        </a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#nav">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="nav">
+            <ul class="navbar-nav mx-auto">
+                <li class="nav-item"><a class="nav-link active" th:href="@{/employer/dashboard}">My dashboard</a></li>
+            </ul>
+            <div class="d-flex align-items-center gap-3">
+                <a th:href="@{/employer/profile}" class="text-decoration-none">
+                    <img th:if="${employerProfile?.profilePhoto != null and !#strings.isEmpty(employerProfile.profilePhoto)}"
+                         th:src="@{${image}}"
+                         alt="Profile Photo"
+                         class="rounded-circle border border-2 border-light"
+                         width="38"
+                         height="38"
+                         style="object-fit: cover;">
+
+                    <div th:unless="${employerProfile?.profilePhoto != null and !#strings.isEmpty(employerProfile.profilePhoto)}"
+                         class="rounded-circle bg-secondary-subtle d-inline-flex align-items-center justify-content-center border border-2 border-light"
+                         style="width: 38px; height: 38px;">
+                        <i class="bi bi-building text-dark fs-5"></i>
+                    </div>
+                </a>
+            </div>
+        </div>
+    </div>
+</nav>
+
+<section class="container py-5">
+    <div class="dash-shell">
+
+        <!-- Sidebar -->
+        <aside class="dash-side">
+            <div class="mb-3 text-center text-md-start">
+                <img th:if="${employerProfile?.profilePhoto != null and !#strings.isEmpty(employerProfile.profilePhoto)}"
+                     th:src="@{${image}}"
+                     alt="Profile Photo"
+                     class="rounded-circle border"
+                     width="72"
+                     height="72"
+                     style="object-fit: cover;">
+                <div th:unless="${employerProfile?.profilePhoto != null and !#strings.isEmpty(employerProfile.profilePhoto)}"
+                     class="rounded-circle bg-light d-inline-flex align-items-center justify-content-center border"
+                     style="width: 72px; height: 72px;">
+                    <i class="bi bi-building text-secondary fs-2"></i>
+                </div>
+            </div>
+
+            <span class="who">Posting as</span>
+            <div class="name" th:text="${companyName != null ? companyName : 'Company'}">Company Name</div>
+
+            <ul class="nav flex-column mt-3">
+                <li class="nav-item">
+                    <a class="nav-link" th:href="@{/employer/dashboard}">
+                        <i class="bi bi-grid me-2"></i> Overview
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" th:href="@{/employer/jobs/new}">
+                        <i class="bi bi-plus-circle me-2"></i> Post a job
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" th:href="@{/employer/profile}">
+                        <i class="bi bi-person me-2"></i> Profile
+                    </a>
+                </li>
+
+                <li class="nav-item">
+                    <a class="nav-link active d-flex align-items-center justify-content-between" th:href="@{/employer/jobs}">
+                        <span><i class="bi bi-briefcase me-2"></i> My listings</span>
+                        <span class="badge rounded-pill bg-light text-dark border ms-2"
+                              th:text="${jobs != null ? jobs.size() : 0}">0</span>
+                    </a>
+                </li>
+            </ul>
+
+            <hr>
+            <form th:action="@{/logout}" method="post">
+                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+                <button type="submit" class="nav-link border-0 bg-transparent p-0 text-start w-100">
+                    <i class="bi bi-box-arrow-right me-2"></i> Log out
+                </button>
+            </form>
+        </aside>
+
+        <!-- Main Content -->
+        <div>
+            <div id="listings">
+                <div class="section-head">
+                    <h2>My listings</h2>
+                    <span class="status-pill-outline">
+                        <i class="bi bi-check2"></i>
+                        <span>[[${#lists.size(jobs)}]] jobs</span>
+                    </span>
+                </div>
+
+
+                <div class="panel panel-tight p-0 overflow-hidden">
+                    <table class="ledger-table mb-0">
+                        <thead>
+                        <tr>
+                            <th>Role</th>
+                            <th>Posted</th>
+                            <th>Applicants</th>
+                            <th>Status</th>
+                            <th></th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr th:each="job : ${jobs}">
+                            <td>
+                                <a th:href="@{/employer/jobs/{id}(id=${job.id})}" th:text="${job.title}" class="fw-semibold">
+                                    Senior Backend Engineer
+                                </a>
+                            </td>
+                            <td th:text="${job.postedAt != null ? #temporals.format(job.postedAt, 'MMM dd, yyyy') : 'N/A'}">
+                                Aug 31, 2026
+                            </td>
+                            <td th:text="${job.applications != null ? job.applications.size() : 0}">0</td>
+                            <td>
+                                <span class="badge-status"
+                                      th:classappend="${job.status.name() == 'OPEN' ? 'badge-published' :
+                                                       (job.status.name() == 'PENDING' ? 'badge-pending' :
+                                                        (job.status.name() == 'CLOSED' ? 'badge-closed' : 'badge-rejected'))}"
+                                      th:text="${#strings.capitalize(#strings.toLowerCase(job.status.name()))}">
+                                    Published
+                                </span>
+                            </td>
+                            <td class="text-end">
+                                <div class="d-flex justify-content-end gap-2 align-items-center">
+                                    <a th:if="${job.status.name() == 'OPEN'}"
+                                       th:href="@{/employer/applications/{id}(id=${job.id})}"
+                                       class="small">View applicants</a>
+                                </div>
+                                <span th:if="${job.status.name() == 'PENDING'}"
+                                      class="text-muted small">Awaiting admin</span>
+                                <span th:if="${job.status.name() == 'REJECTED'}"
+                                      class="text-muted small">Rejected</span>
+                                <span th:if="${job.status.name() == 'CLOSED'}"
+                                      class="text-muted small">Closed</span>
+                            </td>
+                        </tr>
+                        <tr th:if="${#lists.isEmpty(jobs)}">
+                            <td colspan="5" class="text-center text-muted py-5">
+                                <i class="bi bi-briefcase fs-3 d-block mb-2"></i>
+                                No job listings created yet.
+                                <div class="mt-3">
+                                    <a th:href="@{/employer/jobs/new}" class="btn btn-brass btn-sm">Post your first
+                                        job</a>
+                                </div>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<div th:replace="fragments/footer :: footer"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script th:src="@{/js/script.js}"></script>
+</body>
+</html>

@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+
+<!-- Top navbar for dashboard pages: brand, one active link, avatar -->
+<th:block th:fragment="topnav(dashboardUrl, label)">
+    <nav class="navbar navbar-expand-lg rj-navbar py-2">
+        <div class="container">
+            <a class="navbar-brand text-white fw-bold fs-4 text-decoration-none" th:href="@{/}">Joblyn</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#nav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="nav">
+                <ul class="navbar-nav mx-auto">
+                    <li class="nav-item"><a class="nav-link active" th:href="${dashboardUrl}" th:text="${label}">dashboard</a>
+                    </li>
+                </ul>
+                <div class="d-flex align-items-center gap-3">
+                    <a th:href="${dashboardUrl}" class="text-decoration-none">
+                        <img th:src="${image != null ? image : '/images/user-icon.png'}"
+                             alt="Profile Photo" class="rounded-circle border border-2 border-light"
+                             width="38" height="38" style="object-fit: cover;">
+                    </a>
+                </div>
+            </div>
+        </div>
+    </nav>
+</th:block>
+
+<!-- Candidate sidebar. active: dashboard | applications | profile -->
+<th:block th:fragment="candidate(active, profile, badgeCount)">
+    <aside class="dash-side">
+        <div class="mb-3 text-center text-md-start">
+            <img th:if="${profile != null and !#strings.isEmpty(profile.profilePhoto)}"
+                 th:src="@{'/photos/candidate/' + ${profile.id} + '/' + ${profile.profilePhoto}}"
+                 alt="Profile Photo" class="rounded-circle border" width="72" height="72" style="object-fit: cover;">
+            <div th:unless="${profile != null and !#strings.isEmpty(profile.profilePhoto)}"
+                 class="rounded-circle bg-light d-inline-flex align-items-center justify-content-center border"
+                 style="width: 72px; height: 72px;">
+                <i class="bi bi-person text-secondary fs-2"></i>
+            </div>
+        </div>
+
+        <span class="who">Signed in as</span>
+        <div class="name" th:text="${profile != null ? profile.firstName + ' ' + profile.lastName : 'Candidate'}">
+            Candidate
+        </div>
+
+        <ul class="nav flex-column mt-3">
+            <li class="nav-item">
+                <a class="nav-link" th:classappend="${active == 'dashboard'} ? 'active'"
+                   th:href="@{/candidate/dashboard}"><i class="bi bi-grid me-2"></i> Overview</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link d-flex align-items-center justify-content-between"
+                   th:classappend="${active == 'applications'} ? 'active'"
+                   th:href="@{/candidate/applications}">
+                    <span><i class="bi bi-file-earmark-text me-2"></i> My applications</span>
+                    <span class="badge rounded-pill bg-light text-dark border ms-2"
+                          th:if="${badgeCount != null}" th:text="${badgeCount}">0</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" th:classappend="${active == 'profile'} ? 'active'"
+                   th:href="@{/candidate/profile}"><i class="bi bi-person me-2"></i> Profile</a>
+            </li>
+            <li class="nav-item" th:if="${profile != null and !#strings.isEmpty(profile.resume)}">
+                <a class="nav-link"
+                   th:href="@{'/resumes/candidate/' + ${profile.id} + '/' + ${profile.resume}}"
+                   target="_blank">
+                    <i class="bi bi-file-earmark-person me-2"></i> Resume
+                </a>
+            </li>
+        </ul>
+        <hr>
+        <form th:action="@{/logout}" method="post">
+            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+            <button type="submit" class="nav-link border-0 bg-transparent p-0 text-start w-100">
+                <i class="bi bi-box-arrow-right me-2"></i> Log out
+            </button>
+        </form>
+    </aside>
+</th:block>
+
+<!-- Employer sidebar. active: dashboard | jobs | applications | profile -->
+<th:block th:fragment="employer(active, employer, companyName, badgeCount)">
+    <aside class="dash-side">
+        <div class="mb-3 text-center text-md-start">
+            <img th:if="${employer != null and !#strings.isEmpty(employer.profilePhoto)}"
+                 th:src="@{'/photos/employer/' + ${employer.id} + '/' + ${employer.profilePhoto}}"
+                 alt="Profile Photo" class="rounded-circle border" width="72" height="72" style="object-fit: cover;">
+            <div th:unless="${employer != null and !#strings.isEmpty(employer.profilePhoto)}"
+                 class="rounded-circle bg-light d-inline-flex align-items-center justify-content-center border"
+                 style="width: 72px; height: 72px;">
+                <i class="bi bi-building text-secondary fs-2"></i>
+            </div>
+        </div>
+
+        <span class="who">Posting as</span>
+        <div class="name" th:text="${companyName != null ? companyName : 'Company'}">Company</div>
+
+        <ul class="nav flex-column mt-3">
+            <li class="nav-item">
+                <a class="nav-link d-flex align-items-center justify-content-between"
+                   th:classappend="${active == 'dashboard'} ? 'active'"
+                   th:href="@{/employer/dashboard}">
+                    <span><i class="bi bi-grid me-2"></i> Overview</span>
+                    <span class="badge rounded-pill bg-light text-dark border ms-2"
+                          th:if="${badgeCount != null}" th:text="${badgeCount}">0</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" th:href="@{/employer/jobs/new}">
+                    <i class="bi bi-plus-circle me-2"></i> Post a job
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" th:classappend="${active == 'profile'} ? 'active'"
+                   th:href="@{/employer/profile}"><i class="bi bi-person me-2"></i> Profile</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" th:classappend="${active == 'jobs'} ? 'active'"
+                   th:href="@{/employer/jobs}"><i class="bi bi-briefcase me-2"></i> My listings</a>
+            </li>
+        </ul>
+        <hr>
+        <form th:action="@{/logout}" method="post">
+            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+            <button type="submit" class="nav-link border-0 bg-transparent p-0 text-start w-100">
+                <i class="bi bi-box-arrow-right me-2"></i> Log out
+            </button>
+        </form>
+    </aside>
+</th:block>
+
+<!-- Admin sidebar. active: dashboard | jobs | users -->
+<th:block th:fragment="admin(active, badgeCount)">
+    <aside class="dash-side">
+        <span class="who">Signed in as</span>
+        <div class="name" sec:authentication="name">Admin</div>
+
+        <ul class="nav flex-column mt-3">
+            <li class="nav-item">
+                <a class="nav-link d-flex align-items-center justify-content-between"
+                   th:classappend="${active == 'dashboard'} ? 'active'"
+                   th:href="@{/admin/dashboard}">
+                    <span><i class="bi bi-hourglass-split me-2"></i> Review queue</span>
+                    <span class="badge rounded-pill bg-light text-dark border ms-2"
+                          th:if="${badgeCount != null}" th:text="${badgeCount}">0</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" th:classappend="${active == 'jobs'} ? 'active'"
+                   th:href="@{/admin/jobs}"><i class="bi bi-briefcase me-2"></i> All jobs</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" th:classappend="${active == 'users'} ? 'active'"
+                   th:href="@{/admin/users}"><i class="bi bi-people me-2"></i> Users</a>
+            </li>
+        </ul>
+        <hr>
+        <form th:action="@{/logout}" method="post">
+            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+            <button type="submit" class="nav-link border-0 bg-transparent p-0 text-start w-100">
+                <i class="bi bi-box-arrow-right me-2"></i> Log out
+            </button>
+        </form>
+    </aside>
+</th:block>
+</html>

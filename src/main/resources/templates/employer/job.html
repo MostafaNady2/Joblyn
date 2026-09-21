@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title th:text="${job != null ? job.title + ' — Joblyn' : 'Job Details — Joblyn'}">Job Details — Joblyn</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,500;0,600;0,700;0,800;1,600&family=Source+Sans+3:wght@400;500;600;700&display=swap"
+          rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+    <link th:href="@{/css/style.css}" rel="stylesheet">
+</head>
+<body>
+
+<!-- ===== Navbar ===== -->
+<nav class="navbar navbar-expand-lg rj-navbar py-2">
+    <div class="container">
+
+        <!-- Left side - Project name -->
+        <a class="navbar-brand text-white fw-bold fs-4 text-decoration-none"
+           th:href="@{/}">
+            Joblyn
+        </a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#nav">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="nav">
+            <ul class="navbar-nav mx-auto">
+                <li class="nav-item"><a class="nav-link active" > Job Details</a></li>
+            </ul>
+            <div class="d-flex align-items-center gap-3">
+                <a th:href="@{/employer/profile}" class="text-decoration-none">
+                    <img th:if="${employer?.profilePhoto != null and !#strings.isEmpty(employer.profilePhoto)}"
+                         th:src="@{${image}}"
+                         alt="Profile Photo"
+                         class="rounded-circle border border-2 border-light"
+                         width="38"
+                         height="38"
+                         style="object-fit: cover;">
+
+                    <div th:unless="${employer?.profilePhoto != null and !#strings.isEmpty(employer.profilePhoto)}"
+                         class="rounded-circle bg-secondary-subtle d-inline-flex align-items-center justify-content-center border border-2 border-light"
+                         style="width: 38px; height: 38px;">
+                        <i class="bi bi-building text-dark fs-5"></i>
+                    </div>
+                </a>
+            </div>
+        </div>
+    </div>
+</nav>
+
+<section class="container py-5">
+    <!-- Breadcrumb -->
+    <nav aria-label="breadcrumb" class="mb-4">
+        <ol class="breadcrumb mb-0">
+            <li class="breadcrumb-item"><a th:href="@{/employer/dashboard}">Dashboard</a></li>
+            <li class="breadcrumb-item"><a th:href="@{/employer/jobs}">Jobs</a></li>
+            <li class="breadcrumb-item active" th:text="${job.title}">Job Title</li>
+        </ol>
+    </nav>
+
+    <div class="row g-4">
+        <!-- Main Content -->
+        <div class="col-lg-8">
+            <div class="panel mb-4">
+                <div class="d-flex justify-content-between align-items-start mb-3 flex-wrap gap-2">
+                    <span class="badge-status"
+                          th:classappend="${job.status != null ? (job.status.name() == 'OPEN' ? 'badge-published' : (job.status.name() == 'CLOSED' ? 'badge-closed' : 'badge-pending')) : 'badge-pending'}"
+                          th:text="${job.status != null ? job.status.name() : 'PENDING'}">OPEN</span>
+                    <form th:if="${job.status != null && job.status.name() == 'OPEN'}"
+                          th:action="@{/employer/jobs/{id}/close(id=${job.id})}"
+                          method="post">
+                        <button type="submit" class="btn btn-outline-danger btn-sm">Close job listing</button>
+                    </form>
+                </div>
+
+                <h1 class="h2 mb-2" th:text="${job.title}">Senior Backend Engineer</h1>
+
+                <p class="text-muted mb-4">
+                    <span th:text="${job.employer != null ? job.employer.companyName : 'Company'}">Company</span>
+                    <span th:if="${job.location != null}"
+                          th:text="' · ' + ${job.location.city} + ', ' + ${job.location.country}"></span>
+                    <span th:if="${job.workNature != null}"
+                          th:text="' · ' + ${#strings.capitalize(#strings.toLowerCase(#strings.replace(job.workNature.name(), '_', ' ')))}"></span>
+                </p>
+
+                <div class="d-flex gap-2 flex-wrap mb-4" th:if="${job.skills != null && !#lists.isEmpty(job.skills)}">
+                    <span class="pill" th:each="skill : ${job.skills}" th:text="${skill.skillName}">Java</span>
+                </div>
+
+                <hr class="my-4">
+
+                <h2 class="h5 mb-3">About the role</h2>
+                <div class="job-description" style="white-space: pre-line;" th:text="${job.description}">
+                    Job description goes here...
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Sidebar -->
+        <div class="col-lg-4">
+            <div class="sticky-top" style="top: 90px;">
+
+                <!-- Total Applications Count Widget -->
+                <div class="panel mb-3">
+                    <a th:href="@{/employer/applications/{id}(id=${job.id})}" class="text-decoration-none d-block">
+                        <span class="text-muted small d-block mb-1">Applications received</span>
+                        <strong class="h5 mb-0 d-block text-dark"
+                                th:text="${job.applications != null ? #lists.size(job.applications) : 0} + ' applied'">
+                            0 applied
+                        </strong>
+                    </a>
+                </div>
+                <!-- Job Details Widget -->
+                <div class="panel mb-3">
+                    <div class="mb-3">
+                        <span class="text-muted small d-block">Salary</span>
+                        <strong class="h5" th:if="${job.salary != null}"
+                                th:text="'$' + ${#numbers.formatInteger(job.salary, 0, 'COMMA')} + '/yr'">$120,000/yr</strong>
+                        <strong class="h5 text-muted" th:if="${job.salary == null}">Undisclosed</strong>
+                    </div>
+
+                    <div class="mb-3">
+                        <span class="text-muted small d-block">Work type</span>
+                        <strong th:if="${job.workNature != null}"
+                                th:text="${#strings.capitalize(#strings.toLowerCase(#strings.replace(job.workNature.name(), '_', ' ')))}">
+                            Full-time
+                        </strong>
+                    </div>
+
+                    <div class="mb-3">
+                        <span class="text-muted small d-block">Deadline</span>
+                        <strong th:if="${job.deadline != null}"
+                                th:text="${#temporals.format(job.deadline, 'MMMM d, yyyy')}">September 20, 2026</strong>
+                        <strong th:if="${job.deadline == null}">No deadline</strong>
+                    </div>
+
+                    <div class="mb-4">
+                        <span class="text-muted small d-block">Posted by</span>
+                        <strong th:text="${job.employer != null ? job.employer.companyName : 'Company'}">Company</strong>
+                    </div>
+                </div>
+
+                <!-- Required Skills Panel -->
+                <div class="panel" th:if="${job.skills != null && !#lists.isEmpty(job.skills)}">
+                    <h3 class="h6 mb-3">Required skills</h3>
+                    <div class="d-flex justify-content-between mb-2" th:each="skill : ${job.skills}">
+                        <span th:text="${skill.skillName}">Java</span>
+                        <span class="text-muted small"
+                              th:text="${skill.requiredLevel != null ? #strings.capitalize(#strings.toLowerCase(skill.requiredLevel.name())) : 'Required'}">
+                            Advanced
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<div th:replace="fragments/footer :: footer"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script th:src="@{/js/script.js}"></script>
+</body>
+</html>

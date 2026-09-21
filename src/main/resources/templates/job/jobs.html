@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <title>Browse jobs — Joblyn</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,500;0,600;0,700;0,800;1,600&family=Source+Sans+3:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+    <link th:href="@{/css/style.css}" rel="stylesheet">
+</head>
+<body>
+
+<!-- ===== Navbar ===== -->
+<div th:replace="fragments/navbar :: navbar"></div>
+
+<!-- Page Header -->
+<section class="container py-4">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb mb-2">
+            <li class="breadcrumb-item"><a th:href="@{/}">Home</a></li>
+            <li class="breadcrumb-item active" aria-current="page">Browse jobs</li>
+        </ol>
+    </nav>
+    <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
+        <div>
+            <h1 class="h3 mb-1">Browse jobs</h1>
+            <p class="text-muted small mb-0">All openings have been reviewed by our team</p>
+        </div>
+    </div>
+</section>
+
+<section class="container pb-5">
+    <div class="row g-4">
+        <!-- Filters -->
+        <div class="col-lg-3">
+            <div class="panel panel-tight sticky-top" style="top: 90px;">
+                <h2 class="h6 mb-3">Filter jobs</h2>
+                <form th:action="@{/jobs/list}" method="post" th:object="${filter}">
+                    <div class="mb-3">
+                        <label class="form-label" for="fq">Keyword</label>
+                        <input type="text" class="form-control" id="fq" th:field="*{keyword}"
+                               placeholder="Title, skill, company">
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Work nature</label>
+                        <div th:each="nature : ${T(com.example.jobboard.enums.JobWorkNature).values()}"
+                             class="form-check">
+                            <input class="form-check-input" type="checkbox"
+                                   th:id="'wn_' + ${nature}"
+                                   th:field="*{workNature}"
+                                   th:value="${nature}">
+                            <label class="form-check-label" th:for="'wn_' + ${nature}"
+                                   th:text="${#strings.capitalize(#strings.toLowerCase(#strings.replace(nature.name(), '_', ' ')))}">
+                                Full time
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label" for="fsalary">Minimum salary</label>
+                        <input type="range" class="form-range" id="fsalary"
+                               th:field="*{minSalary}" min="0" max="200000" step="5000"
+                               oninput="document.getElementById('salaryVal').innerText = '$' + Number(this.value).toLocaleString()">
+                        <div class="d-flex justify-content-between small text-muted">
+                            <span>$0</span>
+                            <span id="salaryVal"
+                                  th:text="'$' + ${filter.minSalary != 0 ? #numbers.formatInteger(filter.minSalary, 1, 'COMMA') : 0}">$0</span>
+                        </div>
+                    </div>
+
+                    <div class="mb-3" th:if="${allSkills != null}">
+                        <label class="form-label d-block fw-semibold mb-2">Skills</label>
+                        <div class="d-flex flex-wrap gap-2">
+                            <div class="form-check" th:each="s : ${allSkills}">
+                                <input class="form-check-input" type="checkbox"
+                                       th:id="'skill_' + ${s}"
+                                       th:field="*{skills}"
+                                       th:value="${s}">
+                                <label class="form-check-label" th:for="'skill_' + ${s}" th:text="${s}">Java</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <button class="btn btn-brass w-100" type="submit">Apply filters</button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Results -->
+        <div class="col-lg-9">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <span class="text-muted small" th:text="'Showing ' + ${#lists.size(jobs.content)} + ' published roles'">
+                    Showing 0 published roles
+                </span>
+            </div>
+
+            <div th:if="${#lists.isEmpty(jobs.content)}" class="text-center py-5">
+                <i class="bi bi-search fs-2 text-muted d-block mb-2"></i>
+                <p class="text-muted">No jobs found matching your criteria.</p>
+                <a th:href="@{/jobs/list(clear=true)}" class="btn btn-outline-ink btn-sm">Clear filters</a>
+            </div>
+
+            <div class="job-list" th:if="${!#lists.isEmpty(jobs.content)}">
+                <div class="job-row" th:each="job : ${jobs.content}">
+                    <div>
+                        <div class="job-title">
+
+                            <!-- Candidate Link -->
+                            <a sec:authorize="hasRole('CANDIDATE')"
+                               th:href="@{/jobs/{id}(id=${job.id})}"
+                               th:text="${job.title}"
+                               class="fw-semibold">Senior Backend Engineer</a>
+
+                            <!-- Employer Link -->
+                            <a sec:authorize="hasRole('EMPLOYER')"
+                               th:href="@{/employer/jobs/{id}(id=${job.id})}"
+                               th:text="${job.title}"
+                               class="fw-semibold">Senior Backend Engineer</a>
+
+                            <!--  Admin Link-->
+                            <a sec:authorize="hasRole('ADMIN')"
+                               th:href="@{/jobs/{id}(id=${job.id})}"
+                               th:text="${job.title}"
+                               class="fw-semibold">Senior Backend Engineer</a>
+
+                            <!-- Anonymous Link -->
+                            <a sec:authorize="isAnonymous()"
+                                th:href="@{/jobs/{id}(id=${job.id})}"
+                                th:text="${job.title}"
+                               class="fw-semibold">Senior Backend Engineer</a>
+
+                        </div>
+                        <div class="job-meta">
+                            <span th:text="${job.employer != null ? job.employer.companyName : 'Company'}">Company</span>
+                            <span th:if="${job.location != null}"
+                                  th:text="${job.location.city + ', ' + job.location.country}"></span>
+                            <span th:if="${job.deadline != null}"
+                                  th:text="'Deadline: ' + ${#temporals.format(job.deadline, 'MMM d')}"></span>
+                        </div>
+                        <div class="mt-2 d-flex gap-2 flex-wrap">
+                            <span class="pill" th:each="skill : ${job.skills}" th:text="${skill.skillName}">Java</span>
+                        </div>
+                    </div>
+
+                    <div>
+                        <span class="pill job-nature"
+                              th:if="${job.workNature != null}"
+                              th:text="${#strings.capitalize(#strings.toLowerCase(#strings.replace(job.workNature.name(), '_', ' ')))}">
+                            Full time
+                        </span>
+                    </div>
+
+                    <div class="job-salary" th:if="${job.salary != null}"
+                         th:text="'$' + ${#numbers.formatInteger(job.salary, 0, 'COMMA')} + '/yr'">
+                        $120,000/yr
+                    </div>
+                    <div class="job-salary text-muted small" th:if="${job.salary == null}">
+                        Salary undisclosed
+                    </div>
+
+                    <div>
+                        <span class="badge-status"
+                              th:classappend="${job.status.name() == 'OPEN'} ? 'badge-published' : (${job.status.name() == 'CLOSED'} ? 'badge-closed' : 'badge-pending')"
+                              th:text="${job.status.name()}">OPEN</span>
+                    </div>
+                </div>
+
+                <!-- ===== Pagination Controls ===== -->
+                <nav th:if="${jobs.totalPages > 1}" aria-label="Job pagination" class="mt-5 mb-4">
+                    <ul class="pagination pagination-rounded justify-content-center align-items-center gap-2">
+
+                        <!-- Previous Page -->
+                        <li class="page-item" th:classappend="${jobs.first} ? 'disabled'">
+                            <a class="page-link rounded-circle d-flex align-items-center justify-content-center"
+                               th:href="@{/jobs/list(page=${jobs.number - 1})}"
+                               aria-label="Previous">
+                                <i class="bi bi-chevron-left small"></i>
+                            </a>
+                        </li>
+
+                        <!-- Page Numbers -->
+                        <li class="page-item" th:each="i : ${#numbers.sequence(0, jobs.totalPages - 1)}"
+                            th:classappend="${i == jobs.number} ? 'active'">
+                            <a class="page-link rounded-circle d-flex align-items-center justify-content-center"
+                               th:href="@{/jobs/list(page=${i})}"
+                               th:text="${i + 1}">1</a>
+                        </li>
+
+                        <!-- Next Page -->
+                        <li class="page-item" th:classappend="${jobs.last} ? 'disabled'">
+                            <a class="page-link rounded-circle d-flex align-items-center justify-content-center"
+                               th:href="@{/jobs/list(page=${jobs.number + 1})}"
+                               aria-label="Next">
+                                <i class="bi bi-chevron-right small"></i>
+                            </a>
+                        </li>
+
+                    </ul>
+                </nav>
+                
+
+            </div>
+        </div>
+    </div>
+</section>
+
+<div th:replace="fragments/footer :: footer"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script th:src="@{/js/script.js}"></script>
+</body>
+</html>

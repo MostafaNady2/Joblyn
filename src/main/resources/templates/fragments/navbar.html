@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<!-- ===== Navbar ===== -->
+<th:block th:fragment="navbar">
+    <nav class="navbar navbar-expand-lg rj-navbar py-2">
+        <div class="container">
+
+            <!-- Left side - Project name -->
+            <a class="navbar-brand text-white fw-bold fs-4 text-decoration-none"
+               th:href="@{/}">
+                Joblyn
+            </a>
+
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#nav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <div class="collapse navbar-collapse" id="nav">
+                <ul class="navbar-nav mx-auto">
+                    <li class="nav-item">
+                        <a class="nav-link"
+                           th:classappend="${currentPage == 'home'} ? 'active'"
+                           th:href="@{/}">
+                            Home
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link"
+                           th:classappend="${currentPage == 'jobs'} ? 'active'"
+                           th:href="@{/jobs/list}">
+                            Browse jobs
+                        </a>
+                    </li>
+                </ul>
+
+                <div class="d-flex gap-2 align-items-center">
+
+                    <!-- Not logged in -->
+                    <th:block sec:authorize="isAnonymous()">
+                        <a th:href="@{/login}" class="btn btn-ghost-light btn-sm">Log in</a>
+                        <a th:href="@{/register}" class="btn btn-brass btn-sm">Get started</a>
+                    </th:block>
+
+                    <!-- Logged in -->
+                    <th:block sec:authorize="isAuthenticated()">
+
+                        <!-- Candidate -->
+                        <a sec:authorize="hasRole('CANDIDATE')"
+                           th:href="@{/candidate/dashboard}"
+                           class="text-decoration-none"
+                           title="Dashboard"
+                           style="width: 38px; height: 38px;">
+                            <img th:src="@{${image}}"
+                                 alt="Profile Photo"
+                                 class="rounded-circle border border-2 border-light"
+                                 width="38"
+                                 height="38"
+                                 style="object-fit: cover;">
+                        </a>
+
+                        <!-- Employer -->
+                        <a sec:authorize="hasRole('EMPLOYER')"
+                           th:href="@{/employer/dashboard}"
+                           class="text-decoration-none"
+                           title="Dashboard"
+                           style="width: 38px; height: 38px;">
+                            <img th:src="@{${image}}"
+                                 alt="Profile Photo"
+                                 class="rounded-circle border border-2 border-light"
+                                 width="38"
+                                 height="38"
+                                 style="object-fit: cover;">
+                        </a>
+
+                        <!-- Admin -->
+                        <a sec:authorize="hasRole('ADMIN')"
+                           th:href="@{/admin/dashboard}"
+                           class="text-decoration-none"
+                           title="Dashboard"
+                           style="width: 38px; height: 38px;">
+                            <img th:src="@{${image}}"
+                                 alt="Profile Photo"
+                                 class="rounded-circle border border-2 border-light"
+                                 width="38"
+                                 height="38"
+                                 style="object-fit: cover;">
+                        </a>
+
+                    </th:block>
+                </div>
+            </div>
+        </div>
+    </nav>
+</th:block>
+</html>

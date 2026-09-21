@@ -1,0 +1,646 @@
+/* ==========================================================================
+   Joblyn — Job Portal
+   Green theme matching the briefcase badge
+   ========================================================================== */
+
+:root {
+    --ink: #0F2A1F;
+    --ink-soft: #1E3A2F;
+    --ground: #F4F7F4;
+    --panel: #FFFFFF;
+    --line: #D4E0D6;
+    --line-dark: rgba(244, 247, 244, 0.15);
+
+    --brass: #22C55E;
+    --brass-dark: #16A34A;
+
+    --moss: #16A34A;
+    --moss-tint: #DCFCE7;
+    --amber: #D97706;
+    --amber-tint: #FEF3C7;
+    --rust: #DC2626;
+    --rust-tint: #FEE2E2;
+    --muted: #6B7280;
+
+    --font-display: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+    --font-body: 'Source Sans 3', 'Segoe UI', Arial, sans-serif;
+
+    --radius: 8px;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+html {
+    scroll-behavior: smooth;
+}
+
+body {
+    background: var(--ground);
+    color: var(--ink-soft);
+    font-family: var(--font-body);
+    font-size: 16px;
+    line-height: 1.55;
+}
+
+h1, h2, h3, h4, .display-serif {
+    font-family: var(--font-display);
+    color: var(--ink);
+    font-weight: 700;
+    letter-spacing: -0.025em;
+}
+
+a {
+    color: var(--ink);
+    text-decoration: none;
+}
+
+a:hover {
+    color: var(--brass-dark);
+}
+
+::selection {
+    background: var(--brass);
+    color: #fff;
+}
+
+/* ---------- Buttons ---------- */
+.btn {
+    border-radius: var(--radius);
+    font-weight: 600;
+    padding: 0.55rem 1.15rem;
+    border-width: 1.5px;
+}
+
+.btn-brass {
+    background: var(--brass);
+    border-color: var(--brass);
+    color: #fff;
+}
+
+.btn-brass:hover {
+    background: var(--brass-dark);
+    border-color: var(--brass-dark);
+    color: #fff;
+}
+
+.btn-outline-ink {
+    border-color: var(--ink);
+    color: var(--ink);
+    background: transparent;
+}
+
+.btn-outline-ink:hover {
+    background: var(--ink);
+    color: #fff;
+}
+
+.btn-ghost-light {
+    border-color: var(--line-dark);
+    color: #989f98;
+    background: transparent;
+}
+
+.btn-ghost-light:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: #fff;
+    border-color: rgba(255, 255, 255, 0.35);
+}
+
+/* ---------- Navbar ---------- */
+.rj-navbar {
+    background: var(--ink);
+    border-bottom: 1px solid var(--line-dark);
+}
+
+.rj-navbar .navbar-brand {
+    font-family: var(--font-display);
+    font-size: 1.4rem;
+    color: #F4F7F4;
+    font-weight: 700;
+}
+
+.rj-navbar .nav-link {
+    color: rgba(244, 247, 244, 0.78);
+    font-weight: 500;
+    padding: 0.5rem 0.9rem !important;
+}
+
+.rj-navbar .nav-link.active,
+.rj-navbar .nav-link:hover {
+    color: #fff;
+}
+
+.rj-navbar .navbar-toggler {
+    border-color: var(--line-dark);
+}
+
+.role-chip {
+    border: 1px solid var(--line-dark);
+    color: #F4F7F4;
+    border-radius: 999px;
+    padding: 0.25rem 0.75rem;
+    font-size: 0.78rem;
+    letter-spacing: 0.03em;
+}
+
+/* User icon button in navbar */
+.navbar .btn img {
+    display: block;
+    transition: transform 0.2s ease;
+}
+
+.navbar .btn:hover img {
+    transform: scale(1.08);
+}
+
+/* Base underline animation */
+.navbar .nav-link {
+    position: relative;
+    text-decoration: none;
+    padding-bottom: 4px;
+}
+
+.navbar .nav-link::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    width: 0;
+    height: 2px;
+    background-color: currentColor;
+    transition: width 0.25s ease-in-out;
+}
+
+/* 1. Show underline on hover or when active */
+.navbar .nav-link:hover::after,
+.navbar .nav-link.active::after {
+    width: 100%;
+}
+
+/* 2. Hide active underline while hovering ANY link inside the navbar */
+.navbar:has(.nav-link:hover) .nav-link.active:not(:hover)::after {
+    width: 0;
+}
+/* ---------- Hero ---------- */
+.hero {
+    background-image: linear-gradient(rgba(15, 42, 31, 0.82), rgba(15, 42, 31, 0.88)),
+    url('/images/we-are-hiring-digital-collage.jpg');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    color: #F4F7F4;
+    padding: 5.5rem 0 5rem;
+    position: relative;
+    overflow: hidden;
+}
+
+.hero h1 {
+    color: #FBF9F4;
+    font-size: 2.75rem;
+    line-height: 1.12;
+    max-width: 13ch;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.hero p.lede {
+    color: rgba(244, 247, 244, 0.78);
+    font-size: 1.1rem;
+    max-width: 48ch;
+}
+
+.hero-stats {
+    display: flex;
+    gap: 2.25rem;
+    margin-top: 2.25rem;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.hero-stats div {
+    border-left: 2px solid var(--brass);
+    padding-left: 0.75rem;
+}
+
+.hero-stats strong {
+    display: block;
+    font-family: var(--font-display);
+    font-size: 1.6rem;
+    color: #fff;
+}
+
+.hero-stats span {
+    font-size: 0.82rem;
+    color: rgba(244, 247, 244, 0.6);
+}
+
+/* ---------- Breadcrumb ---------- */
+.breadcrumb {
+    background: transparent;
+    padding: 0;
+    margin-bottom: 0.5rem;
+    font-size: 0.9rem;
+}
+
+.breadcrumb-item a {
+    color: var(--muted);
+}
+
+.breadcrumb-item a:hover {
+    color: var(--brass);
+}
+
+.breadcrumb-item.active {
+    color: var(--ink);
+    font-weight: 600;
+}
+
+.breadcrumb-item + .breadcrumb-item::before {
+    content: "›";
+    color: var(--muted);
+}
+
+/* ---------- Section headers ---------- */
+.section-head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    border-bottom: 1px solid var(--line);
+    padding-bottom: 0.75rem;
+    margin-bottom: 1.5rem;
+}
+
+.section-head h2 {
+    font-size: 1.5rem;
+    margin: 0;
+}
+
+.section-head a {
+    font-weight: 600;
+    font-size: 0.92rem;
+}
+
+/* ---------- Job list ---------- */
+.job-row {
+    display: grid;
+    grid-template-columns: 1fr auto auto auto;
+    gap: 1.25rem;
+    align-items: center;
+    padding: 1.25rem 0;
+    border-bottom: 1px solid var(--line);
+}
+
+.job-row:first-child {
+    border-top: 1px solid var(--line);
+}
+
+.job-row .job-title {
+    font-family: var(--font-display);
+    font-size: 1.15rem;
+    color: var(--ink);
+    margin-bottom: 0.2rem;
+}
+
+.job-row .job-meta {
+    font-size: 0.88rem;
+    color: var(--muted);
+}
+
+.job-row .job-meta span:not(:last-child)::after {
+    content: "·";
+    margin: 0 0.45rem;
+    color: var(--line);
+}
+
+.job-row .job-salary {
+    font-weight: 600;
+    color: var(--ink-soft);
+    white-space: nowrap;
+}
+
+@media (max-width: 767px) {
+    .job-row {
+        grid-template-columns: 1fr;
+        gap: 0.4rem;
+    }
+}
+
+/* ---------- Badges ---------- */
+.badge-status {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    font-size: 0.74rem;
+    font-weight: 700;
+    letter-spacing: 0.03em;
+    padding: 0.32rem 0.65rem;
+    border-radius: 999px;
+    text-transform: uppercase;
+}
+
+.badge-status::before {
+    content: "";
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: currentColor;
+}
+
+.badge-pending {
+    background: var(--amber-tint);
+    color: var(--amber);
+}
+
+.badge-approved,
+.badge-published,
+.badge-accepted {
+    background: var(--moss-tint);
+    color: var(--moss);
+}
+
+.badge-rejected,
+.badge-closed {
+    background: var(--rust-tint);
+    color: var(--rust);
+}
+
+.badge-review {
+    background: #E7E4F4;
+    color: #4B3E8C;
+}
+.status-pill-outline {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 16px;
+    font-size: 14px;
+    font-weight: 600;
+    color: #0f3d2e;
+    background-color: transparent;
+    border: 1px solid #1c4d3b;
+    border-radius: 10px;
+    user-select: none;
+    white-space: nowrap;
+}
+
+.status-pill-outline i {
+    font-size: 16px;
+    line-height: 1;
+}
+
+/* ---------- Pills ---------- */
+.pill {
+    display: inline-block;
+    font-size: 0.78rem;
+    font-weight: 600;
+    border: 1px solid var(--line);
+    color: var(--ink-soft);
+    border-radius: 999px;
+    padding: 0.22rem 0.7rem;
+    background: var(--panel);
+}
+
+/* ---------- Panels ---------- */
+.panel {
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    padding: 1.75rem;
+}
+
+.panel-tight {
+    padding: 1.25rem 1.5rem;
+}
+
+/* ---------- Dashboard ---------- */
+.dash-shell {
+    display: grid;
+    grid-template-columns: 240px 1fr;
+    gap: 2rem;
+}
+
+@media (max-width: 900px) {
+    .dash-shell {
+        grid-template-columns: 1fr;
+    }
+}
+
+.dash-side {
+    background: var(--ink);
+    color: #F4F7F4;
+    border-radius: var(--radius);
+    padding: 1.5rem 1.25rem;
+    height: max-content;
+}
+
+.dash-side .who {
+    font-size: 0.8rem;
+    color: rgba(244, 247, 244, 0.55);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.dash-side .name {
+    font-family: var(--font-display);
+    font-size: 1.2rem;
+    margin: 0.15rem 0 1.1rem;
+}
+
+.dash-side .nav-link {
+    color: rgba(244, 247, 244, 0.78);
+    padding: 0.55rem 0.6rem !important;
+    border-radius: var(--radius);
+    font-size: 0.92rem;
+    font-weight: 500;
+}
+
+.dash-side .nav-link.active {
+    background: rgba(34, 197, 94, 0.18);
+    color: #fff;
+}
+
+.dash-side .nav-link:hover {
+    color: #fff;
+}
+
+.dash-side hr {
+    border-color: var(--line-dark);
+}
+
+.stat-card {
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    padding: 1.1rem 1.25rem;
+    background: var(--panel);
+}
+
+.stat-card .num {
+    font-family: var(--font-display);
+    font-size: 2rem;
+    color: var(--ink);
+    line-height: 1;
+}
+
+.stat-card .label {
+    font-size: 0.82rem;
+    color: var(--muted);
+    margin-top: 0.35rem;
+}
+
+/* Custom Rounded Pagination Styling */
+.pagination-rounded .page-item .page-link {
+    width: 40px;
+    height: 40px;
+    padding: 0;
+    border: 1px solid #e2e8f0;
+    color: #475569;
+    background-color: #ffffff;
+    font-weight: 500;
+    font-size: 0.9rem;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+    transition: all 0.2s ease-in-out;
+}
+
+/* Hover States */
+.pagination-rounded .page-item:not(.active):not(.disabled) .page-link:hover {
+    background-color: #f8fafc;
+    color: #2563eb;
+    border-color: #cbd5e1;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+/* Active Page State */
+.pagination-rounded .page-item.active .page-link {
+    background-color: #2563eb;
+    border-color: #2563eb;
+    color: #ffffff;
+    font-weight: 600;
+    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.35);
+}
+
+/* Disabled State */
+.pagination-rounded .page-item.disabled .page-link {
+    background-color: #f1f5f9;
+    border-color: #e2e8f0;
+    color: #94a3b8;
+    opacity: 0.7;
+    cursor: not-allowed;
+}
+/* ---------- Tables ---------- */
+table.ledger-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+table.ledger-table th {
+    text-align: left;
+    font-size: 0.76rem;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--muted);
+    border-bottom: 1px solid var(--line);
+    padding: 0.75rem 0.75rem;
+    font-weight: 700;
+}
+
+table.ledger-table td {
+    border-bottom: 1px solid var(--line);
+    padding: 0.9rem 0.75rem;
+    vertical-align: middle;
+    font-size: 0.93rem;
+}
+
+table.ledger-table tr:last-child td {
+    border-bottom: none;
+}
+
+/* ---------- Auth pages ---------- */
+.role-pick {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.75rem;
+    margin-bottom: 1.25rem;
+}
+
+.role-pick label {
+    border: 1.5px solid var(--line);
+    border-radius: var(--radius);
+    padding: 0.9rem 0.75rem;
+    text-align: center;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 0.9rem;
+    color: var(--ink-soft);
+    position: relative;
+    transition: all 0.15s ease;
+}
+
+.role-pick input {
+    position: absolute;
+    opacity: 0;
+}
+
+.role-pick input:checked + label,
+.role-pick label.picked {
+    border-color: var(--brass);
+    background: var(--moss-tint);
+    color: var(--ink);
+}
+
+/* ---------- Footer ---------- */
+footer.rj-footer {
+    background: var(--ink);
+    color: rgba(244, 247, 244, 0.65);
+    padding: 3rem 0 1.75rem;
+    margin-top: 5rem;
+    font-size: 0.9rem;
+}
+
+footer.rj-footer h5 {
+    color: #fff;
+    font-family: var(--font-display);
+    font-size: 1.15rem;
+}
+
+footer.rj-footer a {
+    color: rgba(244, 247, 244, 0.65);
+}
+
+footer.rj-footer a:hover {
+    color: var(--brass);
+}
+
+footer.rj-footer .bottom {
+    border-top: 1px solid var(--line-dark);
+    margin-top: 2.25rem;
+    padding-top: 1.25rem;
+    font-size: 0.8rem;
+    color: rgba(244, 247, 244, 0.45);
+}
+
+/* ---------- Forms ---------- */
+.form-label {
+    font-weight: 600;
+    color: var(--ink-soft);
+    font-size: 0.92rem;
+}
+
+.form-control:focus,
+.form-select:focus {
+    border-color: var(--brass);
+    box-shadow: 0 0 0 0.2rem rgba(34, 197, 94, 0.18);
+}
+
+/* ---------- Misc ---------- */
+.eyebrow-plain {
+    color: var(--brass);
+    font-weight: 700;
+    font-size: 0.85rem;
+}
+
+.divider-line {
+    border-color: var(--line);
+}
