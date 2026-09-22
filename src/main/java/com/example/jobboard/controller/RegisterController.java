@@ -1,6 +1,7 @@
 package com.example.jobboard.controller;
 
 import com.example.jobboard.dto.UserForm;
+import com.example.jobboard.exception.EmailAlreadyExistException;
 import com.example.jobboard.service.RegistrationService;
 import com.example.jobboard.service.UserService;
 import jakarta.validation.Valid;
@@ -26,11 +27,11 @@ public class RegisterController {
     }
 
     @GetMapping("/register")
-    public String register(@RequestParam("role") String role, Model model) {
+    public String register(@RequestParam(value = "role",required = false) String role, Model model) {
         UserForm userForm = new UserForm();
-        if (role.equalsIgnoreCase("candidate")) {
+        if ("candidate".equalsIgnoreCase(role)) {
             userForm.setRole("CANDIDATE");
-        } else if (role.equalsIgnoreCase("employer")) {
+        } else if ("employer".equalsIgnoreCase(role)) {
             userForm.setRole("EMPLOYER");
         }
         model.addAttribute("userForm", userForm);
@@ -40,10 +41,27 @@ public class RegisterController {
     @PostMapping("/register")
     public String register(@Valid @ModelAttribute("userForm") UserForm userForm,
                            BindingResult bindingResult) {
+        if("employer".equalsIgnoreCase(userForm.getRole())) {
+            if(userForm.getCompanyName() == null || userForm.getCompanyName().isEmpty()) {
+                bindingResult.rejectValue("companyName","error.userForm", "Company name is required");
+            }
+            if(userForm.getCountry() == null || userForm.getCountry().isEmpty()) {
+                bindingResult.rejectValue("country","error.userForm", "country name is required");
+            }
+            if(userForm.getCity() == null || userForm.getCity().isEmpty()) {
+                bindingResult.rejectValue("city","error.userForm", "city name is required");
+            }
+        }
+
         if (bindingResult.hasErrors()) {
             return "register";
         }
-        registrationService.register(userForm);
+        try{
+            registrationService.register(userForm);
+        }catch (EmailAlreadyExistException ex){
+            bindingResult.rejectValue("email","error.userForm", "Email already exists");
+            return "register";
+        }
         return "redirect:/login";
     }
 }

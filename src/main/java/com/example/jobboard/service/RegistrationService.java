@@ -69,5 +69,7 @@ public class RegistrationService {
         } else {
             throw new BadRequestException("Unknown role: " + form.getRole());
         }
+
+
     }
 }
