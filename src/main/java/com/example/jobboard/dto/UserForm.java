@@ -2,6 +2,7 @@ package com.example.jobboard.dto;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
 
@@ -17,7 +18,7 @@ public class UserForm {
     private String lastName;
 
     @NotEmpty(message = "Email is required")
-    @Email(message = "Email must be valid")
+    @Pattern(regexp = "^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A_Za-z]{2,63}$",message = "Email must be valid")
     private String email;
 
     @NotEmpty(message = "Password is required")
@@ -27,11 +28,7 @@ public class UserForm {
     @NotEmpty(message = "Please choose candidate or employer")
     private String role;
 
-    @NotEmpty(message = "Company name is required")
-    @Size(min = 2, message = "Company name must be at least 2 characters long")
     private String companyName;
-    @NotEmpty(message = "Country is required")
     private String country;
-    @NotEmpty(message = "City is required")
     private String city;
 }
