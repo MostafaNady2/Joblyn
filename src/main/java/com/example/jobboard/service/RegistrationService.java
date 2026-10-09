@@ -42,14 +42,13 @@ public class RegistrationService {
         if (userRepository.findByEmail(form.getEmail()).isPresent()) {
             throw new EmailAlreadyExistException("Email already registered: " + form.getEmail());
         }
-
+        if (form.getRole() == null) {
+            throw new BadRequestException("Role is required");
+        }
         User user = userMapper.toUser(form, passwordEncoder.encode(form.getPassword()));
-
         switch (user.getRole()) {
             case CANDIDATE -> candidateRepository.save(userMapper.toCandidateProfile(form, user));
             case EMPLOYER -> employerRepository.save(userMapper.toEmployerProfile(form, user));
-            default -> throw new BadRequestException("invalid role: " + user.getRole().name());
         }
-
     }
 }

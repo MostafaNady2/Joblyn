@@ -15,6 +15,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Spy;
@@ -37,8 +38,8 @@ class RegistrationServiceTest {
     private EmployerRepository employerRepository;
     @Mock
     private PasswordEncoder passwordEncoder;
-    @Mock
-    private UserMapper mockedMapper;
+    @Spy
+    private UserMapper mapper;
     @InjectMocks
     private RegistrationService registrationService;
 
@@ -63,66 +64,75 @@ class RegistrationServiceTest {
 
         assertThatThrownBy(() -> registrationService.register(userForm))
                 .isInstanceOf(EmailAlreadyExistException.class);
+        verify(candidateRepository, never()).save(any());
+        verify(employerRepository, never()).save(any());
     }
 
     @Test
     @DisplayName("Should register new candidate successfully")
     public void registerNewCandidate() {
-        User user = new User();
-        CandidateProfile candidate = new CandidateProfile();
-        candidate.setUser(user);
-        user.setRole(Role.CANDIDATE);
+        userForm.setRole("candidate");
 
+        when(userRepository.findByEmail("mostafa2nady@gmail.com")).thenReturn(Optional.empty());
         when(passwordEncoder.encode("mostafa123")).thenReturn("$2a$encoded");
-        when(mockedMapper.toUser(userForm, "$2a$encoded")).thenReturn(user);
-        when(mockedMapper.toCandidateProfile(userForm, user)).thenReturn(candidate);
 
         registrationService.register(userForm);
 
-        verify(mockedMapper).toUser(userForm, "$2a$encoded");
-        verify(passwordEncoder).encode("mostafa123");
+        ArgumentCaptor<CandidateProfile> captor = ArgumentCaptor.forClass(CandidateProfile.class);
 
-        assertThat(user.isActive()).isTrue();
-//        assertThat(user.getCreatedAt()).isNotNull();
+        verify(candidateRepository).save(captor.capture());
+        CandidateProfile candidate = captor.getValue();
 
-        verify(mockedMapper).toCandidateProfile(userForm, user);
-        verify(candidateRepository).save(candidate);
+        assertThat(candidate.getFirstName()).isEqualTo("mostafa");
+        assertThat(candidate.getUser().getEmail()).isEqualTo("mostafa2nady@gmail.com");
+        assertThat(candidate.getUser().getPassword()).isEqualTo("$2a$encoded");
+        assertThat(candidate.getUser().getRole()).isEqualTo(Role.CANDIDATE);
+        verify(employerRepository, never()).save(any());
     }
 
     @Test
     @DisplayName("Should register new employer successfully")
     public void registerNewEmployer() {
-        User user = new User();
-        EmployerProfile employer = new EmployerProfile();
-        employer.setUser(user);
-        user.setRole(Role.EMPLOYER);
+        userForm.setRole("employer");
+        userForm.setCompanyName("vodafone");
 
+        when(userRepository.findByEmail("mostafa2nady@gmail.com")).thenReturn(Optional.empty());
         when(passwordEncoder.encode("mostafa123")).thenReturn("$2a$encoded");
-        when(mockedMapper.toUser(userForm, "$2a$encoded")).thenReturn(user);
-        when(mockedMapper.toEmployerProfile(userForm, user)).thenReturn(employer);
 
         registrationService.register(userForm);
 
-        verify(mockedMapper).toUser(userForm, "$2a$encoded");
-        verify(passwordEncoder).encode("mostafa123");
+        ArgumentCaptor<EmployerProfile> captor = ArgumentCaptor.forClass(EmployerProfile.class);
 
-        assertThat(user.isActive()).isTrue();
-//        assertThat(user.getCreatedAt()).isNotNull();
+        verify(employerRepository).save(captor.capture());
+        EmployerProfile employer = captor.getValue();
 
-        verify(mockedMapper).toEmployerProfile(userForm, user);
-        verify(employerRepository).save(employer);
+        assertThat(employer.getFirstName()).isEqualTo("mostafa");
+        assertThat(employer.getCompanyName()).isEqualTo("vodafone");
+        assertThat(employer.getUser().getEmail()).isEqualTo("mostafa2nady@gmail.com");
+        assertThat(employer.getUser().getPassword()).isEqualTo("$2a$encoded");
+        assertThat(employer.getUser().getRole()).isEqualTo(Role.EMPLOYER);
+        verify(candidateRepository, never()).save(any());
     }
 
     @Test
     @DisplayName("Should throw exception when role is invalid")
     void registerInvalidRole() {
-        RegistrationService service = new RegistrationService(userRepository, candidateRepository, employerRepository, passwordEncoder,
-        new UserMapper());
         userForm.setRole("invalid");
 
-        assertThatThrownBy(() -> service.register(userForm))
-                .isInstanceOf(BadRequestException.class)
-                .hasMessageContaining("Invalid role");
+        assertThatThrownBy(() -> registrationService.register(userForm))
+                .isInstanceOf(BadRequestException.class);
+
+        verify(candidateRepository, never()).save(any());
+        verify(employerRepository, never()).save(any());
+    }
+
+    @Test
+    @DisplayName("Should throw exception when role is null")
+    void registerNullRole() {
+        userForm.setRole(null);
+
+        assertThatThrownBy(() -> registrationService.register(userForm))
+                .isInstanceOf(BadRequestException.class);
 
         verify(candidateRepository, never()).save(any());
         verify(employerRepository, never()).save(any());
