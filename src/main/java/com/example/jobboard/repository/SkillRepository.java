@@ -6,7 +6,6 @@ import com.example.jobboard.entity.Job;
 import com.example.jobboard.entity.JobSkill;
 import jakarta.persistence.EntityManager;
 
-import java.util.List;
 import java.util.Set;
 
 import jakarta.transaction.Transactional;

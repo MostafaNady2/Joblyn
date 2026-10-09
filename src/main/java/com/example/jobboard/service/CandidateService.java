@@ -44,10 +44,6 @@ public class CandidateService {
         return candidateRepository.save(candidate);
     }
 
-    public CandidateProfile findByEmail(String email) {
-        return candidateRepository.findByUserEmail(email).orElse(null);
-    }
-
     public void saveProfilePhoto(MultipartFile photo,CandidateProfile candidate) throws IOException {
         if(photo != null && !photo.isEmpty()){
             String photoName = StringUtils.cleanPath(Objects.requireNonNull(photo.getOriginalFilename()));

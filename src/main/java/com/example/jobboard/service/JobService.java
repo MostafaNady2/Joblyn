@@ -52,21 +52,6 @@ public class JobService {
     }
 
     @Transactional
-    public Job save(Job job) {
-        return jobRepository.save(job);
-    }
-
-    @Transactional
-    public void delete(Job job) {
-        jobRepository.delete(job);
-    }
-
-    @Transactional
-    public void deleteById(int id) {
-        jobRepository.deleteById(id);
-    }
-
-    @Transactional
     public void createJob(Job job, EmployerProfile employer) {
         job.setEmployer(employer);
         job.setPostedAt(LocalDateTime.now());
@@ -117,11 +102,11 @@ public class JobService {
         return jobRepository.findByPostedAtAfterOrderByPostedAtDesc(LocalDateTime.now().minusDays(daysLeft));
     }
 
-    @Scheduled(cron = "0 0 12 * * *")
-    @Transactional
-    public void closeExpiredJobs() {
-        int count = jobRepository.closeExpiredJobs(JobStatus.CLOSED);
-        // log.info("Closed {} expired jobs", count);
-    }
+//    @Scheduled(cron = "0 0 12 * * *")
+//    @Transactional
+//    public void closeExpiredJobs() {
+//        int count = jobRepository.closeExpiredJobs(JobStatus.CLOSED);
+//        // log.info("Closed {} expired jobs", count);
+//    }
 
 }

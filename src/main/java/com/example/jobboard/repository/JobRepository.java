@@ -14,7 +14,6 @@ import org.springframework.stereotype.Repository;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 
 @Repository
 public interface JobRepository extends JpaRepository<Job, Integer> , JpaSpecificationExecutor<Job> {

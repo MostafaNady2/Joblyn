@@ -36,26 +36,8 @@ public class ApplicationService {
         return applicationRepository.save(application);
     }
 
-    @Transactional
-    public void delete(Application application) {
-        applicationRepository.delete(application);
-    }
-
-    @Transactional
-    public void deleteById(int id) {
-        applicationRepository.deleteById(id);
-    }
-
-    public List<Application> findByJobId(int jobId) {
-        return applicationRepository.findByJobId(jobId);
-    }
-
     public List<Application> findByCandidateId(int candidateId) {
         return applicationRepository.findByCandidateId(candidateId);
-    }
-
-    public List<Application> findByStatus(ApplicationStatus status) {
-        return applicationRepository.findByStatus(status);
     }
 
     @Transactional

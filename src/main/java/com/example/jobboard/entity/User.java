@@ -3,6 +3,7 @@ package com.example.jobboard.entity;
 import com.example.jobboard.enums.Role;
 import jakarta.persistence.*;
 import lombok.Data;
+import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDateTime;
 
@@ -22,12 +23,13 @@ public class User {
     private String password;
 
     @Column(name = "active",nullable = false)
-    private boolean isActive;
+    private boolean Active = true;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "role",nullable = false)
     private Role role;
 
+    @CreationTimestamp
     @Column(name = "created_at",nullable = false)
     private LocalDateTime createdAt;
 }

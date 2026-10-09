@@ -91,6 +91,12 @@
                                 th:text="${#temporals.format(job.deadline, 'MMMM d, yyyy')}">September 20, 2026</strong>
                         <strong th:if="${job.deadline == null}">No deadline</strong>
                     </div>
+                    <div class="mb-3">
+                        <span class="text-muted small d-block">Posted At</span>
+                        <strong th:if="${job.postedAt != null}"
+                                th:text="${#temporals.format(job.postedAt, 'MMMM d, yyyy')}">September 20, 2026</strong>
+                        <strong th:if="${job.postedAt == null}">No deadline</strong>
+                    </div>
 
                     <div class="mb-4">
                         <span class="text-muted small d-block">Posted by</span>

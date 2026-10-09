@@ -30,10 +30,6 @@ public class EmployerService {
         return employerRepository.findById(id).orElse(null);
     }
 
-    public EmployerProfile findByEmail(String email) {
-        return employerRepository.findByUserEmail(email).orElse(null);
-    }
-
     @Transactional
     public void save(EmployerProfile employer) {
         employerRepository.save(employer);

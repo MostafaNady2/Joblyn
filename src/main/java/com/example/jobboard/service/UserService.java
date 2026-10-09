@@ -13,10 +13,9 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
-
-import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -31,10 +30,6 @@ public class UserService {
         this.userRepository = userRepository;
         this.candidateRepository = candidateRepository;
         this.employerRepository = employerRepository;
-    }
-
-    public long count() {
-        return userRepository.count();
     }
 
     public long countByRole(Role role) {
@@ -68,7 +63,7 @@ public class UserService {
             return null;
         }
         String email = auth.getName();
-        String role = auth.getAuthorities().stream().findFirst().map(a -> a.getAuthority()).orElse("");
+        String role = auth.getAuthorities().stream().findFirst().map(GrantedAuthority::getAuthority).orElse("");
         return switch (role) {
             case "ROLE_CANDIDATE" -> candidateRepository.findByUserEmail(email)
                     .orElseThrow(() -> new UserNotFoundException("Candidate profile not found"));

@@ -43,7 +43,7 @@ public class JobController {
             model.addAttribute("filter",filter);
         }
         String image = userService.getProfilePhotoUrl();
-        Pageable pageable = PageRequest.of(page,5, Sort.by("postedAt").ascending());
+        Pageable pageable = PageRequest.of(page,5, Sort.by("postedAt").descending());
         Page<Job> openedJobs = jobService.findByFilter(filter, pageable);
 
         model.addAttribute("jobs", openedJobs);
