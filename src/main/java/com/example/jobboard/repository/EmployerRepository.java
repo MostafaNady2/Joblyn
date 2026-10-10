@@ -10,5 +10,4 @@ public interface EmployerRepository extends JpaRepository<EmployerProfile, Integ
 
 
     public Optional<EmployerProfile> findByUserEmail(String email);
-    public Optional<EmployerProfile> findByUserId(int userId);
 }

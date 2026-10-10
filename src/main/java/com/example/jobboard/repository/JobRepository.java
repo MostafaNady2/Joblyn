@@ -24,14 +24,19 @@ public interface JobRepository extends JpaRepository<Job, Integer> , JpaSpecific
     public Optional<Job> findById(int id);
     public List<Job> findByStatus(JobStatus status);
     public long countJobsByStatus(JobStatus status);
+
     @Query("SELECT j FROM Job j LEFT JOIN FETCH j.applications WHERE j.employer.id = :employerId")
     List<Job> findByEmployerIdWithApplications(@Param("employerId") int employerId);
 
     @Query("SELECT j FROM Job j LEFT JOIN FETCH j.applications WHERE j.id = :id")
     Job findByIdWithApplications(@Param("id") int theId);
+
     public List<Job> findByPostedAtAfterOrderByPostedAtDesc(LocalDateTime postedAt );
 
     @Modifying(clearAutomatically = true, flushAutomatically = true)
     @Query("UPDATE Job j SET j.status = :status WHERE j.deadline <= NOW() AND j.status != :status")
     public int closeExpiredJobs(@Param("status") JobStatus status);
+
+    @Query("select distinct s.skillName from Job j join j.skills s")
+    List<String> findAllSkills();
 }

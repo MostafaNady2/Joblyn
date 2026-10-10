@@ -6,31 +6,24 @@ import com.example.jobboard.entity.Job;
 import com.example.jobboard.enums.JobStatus;
 import com.example.jobboard.exception.JobNotFoundException;
 import com.example.jobboard.repository.JobRepository;
-import com.example.jobboard.repository.SkillRepository;
 import com.example.jobboard.util.JobSpecification;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Set;
 
 @Service
 public class JobService {
     private final JobRepository jobRepository;
-    private final SkillRepository skillRepository;
-
     @Autowired
-    public JobService(JobRepository jobRepository, SkillRepository skillRepository) {
+    public JobService(JobRepository jobRepository) {
         this.jobRepository = jobRepository;
-        this.skillRepository = skillRepository;
     }
 
     public Page<Job> findAll(Pageable pageable) {
@@ -49,6 +42,10 @@ public class JobService {
         Specification<Job> spec = JobSpecification.filter(filter);
         return jobRepository.findAll(spec, pageable);
 
+    }
+
+    public List<String> findAllSkills() {
+        return jobRepository.findAllSkills();
     }
 
     @Transactional

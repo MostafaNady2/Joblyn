@@ -3,8 +3,8 @@ package com.example.jobboard.service;
 import com.example.jobboard.entity.CandidateProfile;
 import com.example.jobboard.entity.CandidateSkill;
 import com.example.jobboard.enums.CandidateWorkType;
+import com.example.jobboard.enums.SkillLevel;
 import com.example.jobboard.repository.CandidateRepository;
-import com.example.jobboard.repository.SkillRepository;
 import com.example.jobboard.util.FileUploadUtil;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -19,6 +19,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 import static org.assertj.core.api.AssertionsForInterfaceTypes.*;
 import static org.mockito.ArgumentMatchers.any;
@@ -29,8 +30,6 @@ class CandidateServiceTest {
 
     @Mock
     private CandidateRepository candidateRepository;
-    @Mock
-    private SkillRepository skillRepository;
     @InjectMocks
     private CandidateService candidateService;
     private List<CandidateProfile> candidates;
@@ -130,22 +129,14 @@ class CandidateServiceTest {
         }
     }
 
+    @Test
+    @DisplayName("Find all skills")
+    void findAllSkills() {
+        when(candidateRepository.findAllSkills()).thenReturn(List.of("Java","C++"));
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+        List<String> result = candidateService.findAllSkills();
+        assertThat(result).isNotNull();
+        assertThat(result).hasSize(2);
+        assertThat(result).contains("Java","C++");
+    }
 }

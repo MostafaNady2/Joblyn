@@ -5,6 +5,8 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
 import java.util.Optional;
+
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 @Repository
@@ -17,4 +19,7 @@ public interface CandidateRepository extends JpaRepository<CandidateProfile, Int
     public Optional<CandidateProfile> findByUserEmail(String email);
 
     public CandidateProfile save(CandidateProfile candidateProfile);
+
+    @Query("SELECT DISTINCT s.skillName FROM CandidateProfile c JOIN c.skills s")
+    public List<String> findAllSkills();
 }

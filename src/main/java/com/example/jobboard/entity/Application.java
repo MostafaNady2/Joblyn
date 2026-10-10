@@ -7,6 +7,7 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
 import lombok.ToString;
+import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDateTime;
 
@@ -21,7 +22,9 @@ public class Application {
 
     private String coverLetter;
 
+
     @Column(name = "applied_at",nullable = false)
+    @CreationTimestamp
     private LocalDateTime appliedAt;
 
     @Enumerated(EnumType.STRING)

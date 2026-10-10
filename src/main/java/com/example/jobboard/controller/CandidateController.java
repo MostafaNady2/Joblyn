@@ -6,7 +6,6 @@ import com.example.jobboard.entity.CandidateProfile;
 import com.example.jobboard.entity.Job;
 import com.example.jobboard.enums.ApplicationStatus;
 import com.example.jobboard.exception.BadRequestException;
-import com.example.jobboard.repository.SkillRepository;
 import com.example.jobboard.service.ApplicationService;
 import com.example.jobboard.service.CandidateService;
 import com.example.jobboard.service.JobService;
@@ -26,23 +25,20 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.prefs.BackingStoreException;
 
 @Controller
 @RequestMapping("/candidate")
 public class CandidateController {
     private final CandidateService candidateService;
     private final ApplicationService applicationService;
-    private final SkillRepository skillRepository;
     private final JobService jobService;
     private final UserService userService;
 
     @Autowired
     public CandidateController(CandidateService candidateService, ApplicationService applicationService,
-                               SkillRepository skillRepository, JobService jobService,UserService userService) {
+                               JobService jobService,UserService userService) {
         this.candidateService = candidateService;
         this.applicationService = applicationService;
-        this.skillRepository = skillRepository;
         this.jobService = jobService;
         this.userService = userService;
     }
@@ -81,7 +77,7 @@ public class CandidateController {
 
         model.addAttribute("candidateProfile", form); // the form backing bean
         model.addAttribute("profile", profile);       // the entity, for display-only data
-        model.addAttribute("skillsSuggestions", skillRepository.findAllSkillNames());
+        model.addAttribute("skillsSuggestions", candidateService.findAllSkills());
         model.addAttribute("image", userService.getProfilePhotoUrl());
         return "candidate/profile";
     }

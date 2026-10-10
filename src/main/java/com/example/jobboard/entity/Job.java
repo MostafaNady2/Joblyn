@@ -5,6 +5,7 @@ import com.example.jobboard.enums.JobWorkNature;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.ToString;
+import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -46,6 +47,7 @@ public class Job {
     @ToString.Exclude
     private Set<JobSkill> skills = new HashSet<>();
 
+    @CreationTimestamp
     @Column(name = "posted_at",nullable = false)
     private LocalDateTime postedAt;
 

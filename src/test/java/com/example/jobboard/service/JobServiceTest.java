@@ -6,7 +6,6 @@ import com.example.jobboard.enums.JobStatus;
 import com.example.jobboard.enums.SkillLevel;
 import com.example.jobboard.exception.JobNotFoundException;
 import com.example.jobboard.repository.JobRepository;
-import com.example.jobboard.repository.SkillRepository;
 import com.example.jobboard.util.JobSpecification;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -331,6 +330,16 @@ class JobServiceTest {
 
         assertThat(result).hasSize(3);
         assertThat(result).containsAll(jobs);
+    }
+
+    @Test
+    @DisplayName("should find all skills")
+    void findAllSkills() {
+        when(jobRepository.findAllSkills()).thenReturn(List.of("Java","C++"));
+
+        List<String> result = jobService.findAllSkills();
+        assertThat(result).hasSize(2);
+        assertThat(result).contains("Java","C++");
     }
 
 }

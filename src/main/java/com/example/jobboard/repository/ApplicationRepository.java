@@ -16,8 +16,6 @@ public interface ApplicationRepository extends JpaRepository<Application, Intege
     public List<Application> findAll();
     public Optional<Application> findById(int id);
     public List<Application> findByCandidateId(int candidateId);
-    public List<Application> findByJobId(int jobId);
-    public List<Application> findByStatus(ApplicationStatus status);
     @Query("SELECT COUNT(a) FROM Application a WHERE a.job.employer.id = :employerId")
     public long countApplicantsByEmployerId(@Param("employerId") int id);
 }

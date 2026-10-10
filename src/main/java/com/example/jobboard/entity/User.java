@@ -2,6 +2,7 @@ package com.example.jobboard.entity;
 
 import com.example.jobboard.enums.Role;
 import jakarta.persistence.*;
+import jakarta.persistence.criteria.CriteriaBuilder;
 import lombok.Data;
 import org.hibernate.annotations.CreationTimestamp;
 
@@ -14,7 +15,7 @@ import java.time.LocalDateTime;
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int id;
+    private Integer id;
 
     @Column(name = "email",nullable = false,unique = true)
     private String email;
