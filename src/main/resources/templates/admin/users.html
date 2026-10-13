@@ -104,7 +104,7 @@
                         </tr>
                         </thead>
                         <tbody>
-                        <tr th:each="user : ${users.content}">
+                        <tr th:each="user : ${users?.content}">
                             <td th:text="${user.email}">user@example.com</td>
                             <td th:text="${user.role != null ? #strings.capitalize(#strings.toLowerCase(user.role.name())) : 'N/A'}">
                                 Role
@@ -117,14 +117,14 @@
                                       th:text="${user.active ? 'Active' : 'Under review'}">Active</span>
                             </td>
                         </tr>
-                        <tr th:if="${#lists.isEmpty(users.content)}">
+                        <tr th:if="${users == null || #lists.isEmpty(users.content)}">
                             <td colspan="4" class="text-center text-muted py-4">No users found.</td>
                         </tr>
                         </tbody>
                     </table>
                 </div>
                 <!-- ===== Pagination Controls ===== -->
-                <nav th:if="${users.totalPages > 1}" aria-label="Job pagination" class="mt-5 mb-4">
+                <nav th:if="${users != null && users.totalPages > 1}" aria-label="Job pagination" class="mt-5 mb-4">
                     <ul class="pagination pagination-rounded justify-content-center align-items-center gap-2">
 
                         <!-- Previous Page -->

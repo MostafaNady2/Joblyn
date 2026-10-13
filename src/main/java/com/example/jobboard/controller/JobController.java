@@ -2,6 +2,8 @@ package com.example.jobboard.controller;
 
 import com.example.jobboard.dto.JobFilter;
 import com.example.jobboard.entity.Job;
+import com.example.jobboard.enums.JobStatus;
+import com.example.jobboard.exception.JobNotFoundException;
 import com.example.jobboard.service.JobService;
 import com.example.jobboard.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,12 +30,13 @@ public class JobController {
     }
 
     @ModelAttribute("filter")
-    public JobFilter initFilter(){
+    private JobFilter initFilter(){
         return new JobFilter();
     }
 
     @GetMapping("/list")
-    public String listJobs(@ModelAttribute("filter") JobFilter filter, @RequestParam(value = "page",defaultValue = "0") int page, @RequestParam(value = "clear",defaultValue = "false") boolean clear, Model model, SessionStatus sessionStatus) {
+    public String listJobs(@ModelAttribute("filter") JobFilter filter, @RequestParam(value = "page",defaultValue = "0") int page,
+                           @RequestParam(value = "clear",defaultValue = "false") boolean clear, Model model, SessionStatus sessionStatus) {
         if(clear){
             sessionStatus.isComplete();
             filter = new JobFilter();
@@ -57,7 +60,11 @@ public class JobController {
     @GetMapping("/{id}")
     public String getJob(@PathVariable int id, Model model) {
         String image = userService.getProfilePhotoUrl();
-        model.addAttribute("job", jobService.findById(id));
+        Job job = jobService.findById(id);
+        if(job.getStatus() != JobStatus.OPEN) {
+            throw new JobNotFoundException("job with id " + id + " is not open");
+        }
+        model.addAttribute("job", job);
         model.addAttribute("image", image);
         model.addAttribute("currentPage", "jobs");
         return "job/job-details";

@@ -105,7 +105,7 @@
                         </tr>
                         </thead>
                         <tbody>
-                        <tr th:each="job : ${jobs.content}">
+                        <tr th:each="job : ${jobs?.content}">
                             <td th:text="${job.title}">Role Title</td>
                             <td th:text="${job.employer != null ? job.employer.companyName : 'N/A'}">Employer</td>
                             <td th:text="${job.postedAt != null ? #temporals.format(job.postedAt, 'MMM d, yyyy') : 'N/A'}">
@@ -121,14 +121,14 @@
                                 </span>
                             </td>
                         </tr>
-                        <tr th:if="${#lists.isEmpty(jobs.content)}">
+                        <tr th:if="${jobs == null || #lists.isEmpty(jobs.content)}">
                             <td colspan="4" class="text-center text-muted py-4">No jobs found.</td>
                         </tr>
                         </tbody>
                     </table>
                 </div>
                 <!-- ===== Pagination Controls ===== -->
-                <nav th:if="${jobs.totalPages > 1}" aria-label="Job pagination" class="mt-5 mb-4">
+                <nav th:if="${jobs != null && jobs.totalPages > 1}" aria-label="Job pagination" class="mt-5 mb-4">
                     <ul class="pagination pagination-rounded justify-content-center align-items-center gap-2">
 
                         <!-- Previous Page -->

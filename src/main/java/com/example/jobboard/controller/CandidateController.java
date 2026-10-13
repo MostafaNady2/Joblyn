@@ -5,7 +5,10 @@ import com.example.jobboard.entity.Application;
 import com.example.jobboard.entity.CandidateProfile;
 import com.example.jobboard.entity.Job;
 import com.example.jobboard.enums.ApplicationStatus;
+import com.example.jobboard.enums.JobStatus;
 import com.example.jobboard.exception.BadRequestException;
+import com.example.jobboard.exception.JobNotFoundException;
+import com.example.jobboard.mapper.UserMapper;
 import com.example.jobboard.service.ApplicationService;
 import com.example.jobboard.service.CandidateService;
 import com.example.jobboard.service.JobService;
@@ -66,7 +69,6 @@ public class CandidateController {
     @GetMapping("/profile")
     public String showProfile(Model model) {
         CandidateProfile profile = (CandidateProfile) userService.getCurrentUser();
-
         CandidateForm form = new CandidateForm();
         form.setFirstName(profile.getFirstName());
         form.setLastName(profile.getLastName());
@@ -118,24 +120,11 @@ public class CandidateController {
         return "redirect:/candidate/dashboard";
     }
 
+
     @PostMapping("/jobs/{id}/apply")
-    public String applyForJob(@PathVariable("id") int jobId, Authentication auth,
-                              @RequestParam("coverLetter") String coverLetter) {
-        if(coverLetter == null || coverLetter.isBlank() || coverLetter.length() < 100) {
-            throw new BadRequestException("Cover letter must be at least 100 characters long");
-        }
-
+    public String applyForJob(@PathVariable("id") int jobId, @RequestParam("coverLetter") String coverLetter) {
         CandidateProfile candidate = (CandidateProfile) userService.getCurrentUser();
-        Job job = jobService.findById(jobId);
-
-        Application application = new Application();
-        application.setCoverLetter(coverLetter);
-        application.setStatus(ApplicationStatus.PENDING);
-        application.setAppliedAt(LocalDateTime.now());
-        application.setJob(job);
-        application.setCandidate(candidate);
-
-        applicationService.save(application);
+        applicationService.apply(jobId, candidate, coverLetter);
         return "redirect:/candidate/dashboard";
     }
 }

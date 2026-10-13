@@ -2,21 +2,30 @@ package com.example.jobboard.service;
 
 import com.example.jobboard.entity.*;
 import com.example.jobboard.enums.ApplicationStatus;
+import com.example.jobboard.enums.JobStatus;
 import com.example.jobboard.exception.ApplicationNotFoundException;
+import com.example.jobboard.exception.BadRequestException;
+import com.example.jobboard.exception.JobNotFoundException;
 import com.example.jobboard.repository.ApplicationRepository;
+import com.example.jobboard.repository.JobRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.EnumSource;
+import org.junit.jupiter.params.provider.ValueSource;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.access.AccessDeniedException;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
-import static org.assertj.core.api.AssertionsForInterfaceTypes.*;
+import static org.assertj.core.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
@@ -26,10 +35,14 @@ class ApplicationServiceTest {
     private ApplicationRepository applicationRepository;
     @Mock
     private UserService userService;
+    @Mock
+    private JobRepository jobRepository;
     @InjectMocks
     private ApplicationService applicationService;
 
     private List<Application> applications;
+
+    private static final String LETTER = "x".repeat(100);
 
     @BeforeEach
     void setUp() {
@@ -49,6 +62,8 @@ class ApplicationServiceTest {
         a3.setStatus(ApplicationStatus.REJECTED);
         applications = List.of(a1, a2, a3);
     }
+
+    // ---------- existing tests ----------
 
     @Test
     @DisplayName("Get all applications")
@@ -101,10 +116,10 @@ class ApplicationServiceTest {
         CandidateProfile candidate = new CandidateProfile();
         candidate.setId(1);
 
-        for(Application application : applications) {
+        for (Application application : applications) {
             application.setCandidate(candidate);
         }
-         when(applicationRepository.findByCandidateId(candidate.getId())).thenReturn(applications);
+        when(applicationRepository.findByCandidateId(candidate.getId())).thenReturn(applications);
 
         List<Application> result = applicationService.findByCandidateId(candidate.getId());
         assertThat(result).isNotNull();
@@ -117,7 +132,7 @@ class ApplicationServiceTest {
     void decideApplicationStatusThrowApplicationNotFoundException() {
         when(applicationRepository.findById(99)).thenReturn(Optional.empty());
 
-        assertThatThrownBy(()->applicationService.decide(99,ApplicationStatus.ACCEPTED))
+        assertThatThrownBy(() -> applicationService.decide(99, ApplicationStatus.ACCEPTED))
                 .isInstanceOf(ApplicationNotFoundException.class);
     }
 
@@ -138,10 +153,10 @@ class ApplicationServiceTest {
         when(applicationRepository.findById(1)).thenReturn(Optional.of(application));
         when(userService.getCurrentUser()).thenReturn("anonymous@gmail.com");
 
-        assertThatThrownBy(()->applicationService.decide(1,ApplicationStatus.ACCEPTED))
+        assertThatThrownBy(() -> applicationService.decide(1, ApplicationStatus.ACCEPTED))
                 .isInstanceOf(AccessDeniedException.class);
 
-        verify(applicationRepository,never()).save(application);
+        verify(applicationRepository, never()).save(application);
     }
 
     @Test
@@ -162,11 +177,143 @@ class ApplicationServiceTest {
         when(userService.getCurrentUser()).thenReturn("authenticated@123gmail.com");
         when(applicationRepository.save(application)).thenReturn(application);
 
-        applicationService.decide(1,ApplicationStatus.ACCEPTED);
+        applicationService.decide(1, ApplicationStatus.ACCEPTED);
 
-        verify(applicationRepository,times(1)).save(application);
+        verify(applicationRepository, times(1)).save(application);
         assertThat(application.getStatus()).isEqualTo(ApplicationStatus.ACCEPTED);
     }
 
+    // ---------- apply ----------
+    @Test
+    @DisplayName("Apply saves a PENDING application for an open job with no deadline")
+    void apply_success() {
+        CandidateProfile candidate = candidate();
+        Job job = jobWith(JobStatus.OPEN, null);
+        when(jobRepository.findById(5)).thenReturn(Optional.of(job));
+        when(applicationRepository.existsByJobIdAndCandidateId(5, 7)).thenReturn(false);
+        when(applicationRepository.save(any(Application.class))).thenAnswer(inv -> inv.getArgument(0));
 
+        Application result = applicationService.apply(5, candidate, LETTER);
+
+        ArgumentCaptor<Application> captor = ArgumentCaptor.forClass(Application.class);
+        verify(applicationRepository).save(captor.capture());
+        Application saved = captor.getValue();
+        assertThat(saved.getStatus()).isEqualTo(ApplicationStatus.PENDING);
+        assertThat(saved.getCoverLetter()).isEqualTo(LETTER);
+        assertThat(saved.getJob()).isSameAs(job);
+        assertThat(saved.getCandidate()).isSameAs(candidate);
+        assertThat(saved.getAppliedAt()).isNotNull();
+        assertThat(result).isSameAs(saved);
+    }
+
+    @Test
+    @DisplayName("Apply works when the deadline is in the future")
+    void apply_futureDeadline() {
+        when(jobRepository.findById(5))
+                .thenReturn(Optional.of(jobWith(JobStatus.OPEN, LocalDateTime.now().plusDays(3))));
+        when(applicationRepository.save(any(Application.class))).thenAnswer(inv -> inv.getArgument(0));
+
+        assertThatCode(() -> applicationService.apply(5, candidate(), LETTER))
+                .doesNotThrowAnyException();
+    }
+
+    @Test
+    @DisplayName("Apply throws JobNotFoundException when the job does not exist")
+    void apply_jobNotFound() {
+        when(jobRepository.findById(99)).thenReturn(Optional.empty());
+
+        assertThatThrownBy(() -> applicationService.apply(99, candidate(), LETTER))
+                .isInstanceOf(JobNotFoundException.class);
+
+        verifyNoInteractions(applicationRepository);
+    }
+
+    @ParameterizedTest
+    @EnumSource(value = JobStatus.class, names = {"PENDING", "REJECTED", "CLOSED"})
+    @DisplayName("Apply throws JobNotFoundException when the job is not open")
+    void apply_jobNotOpen(JobStatus status) {
+        when(jobRepository.findById(5)).thenReturn(Optional.of(jobWith(status, null)));
+
+        assertThatThrownBy(() -> applicationService.apply(5, candidate(), LETTER))
+                .isInstanceOf(JobNotFoundException.class);
+
+        verifyNoInteractions(applicationRepository);
+    }
+
+    @Test
+    @DisplayName("Apply throws BadRequestException when the deadline has passed")
+    void apply_deadlinePassed() {
+        when(jobRepository.findById(5))
+                .thenReturn(Optional.of(jobWith(JobStatus.OPEN, LocalDateTime.now().minusDays(1))));
+
+        assertThatThrownBy(() -> applicationService.apply(5, candidate(), LETTER))
+                .isInstanceOf(BadRequestException.class)
+                .hasMessageContaining("deadline");
+
+        verifyNoInteractions(applicationRepository);
+    }
+
+    @Test
+    @DisplayName("Apply throws BadRequestException when the candidate already applied")
+    void apply_duplicate() {
+        when(jobRepository.findById(5)).thenReturn(Optional.of(jobWith(JobStatus.OPEN, null)));
+        when(applicationRepository.existsByJobIdAndCandidateId(5, 7)).thenReturn(true);
+
+        assertThatThrownBy(() -> applicationService.apply(5, candidate(), LETTER))
+                .isInstanceOf(BadRequestException.class)
+                .hasMessageContaining("already applied");
+
+        verify(applicationRepository, never()).save(any());
+    }
+    @ParameterizedTest
+    @ValueSource(ints = {0, 1, 99})
+    @DisplayName("Apply rejects a cover letter shorter than 100 characters")
+    void apply_letterTooShort(int length) {
+        assertThatThrownBy(() -> applicationService.apply(5, candidate(), "x".repeat(length)))
+                .isInstanceOf(BadRequestException.class)
+                .hasMessageContaining("100 characters");
+
+        verifyNoInteractions(jobRepository, applicationRepository);
+    }
+
+    @Test
+    @DisplayName("Apply rejects a cover letter that is only whitespace")
+    void apply_letterBlank() {
+        assertThatThrownBy(() -> applicationService.apply(5, candidate(), " ".repeat(150)))
+                .isInstanceOf(BadRequestException.class);
+
+        verifyNoInteractions(jobRepository, applicationRepository);
+    }
+
+    @Test
+    @DisplayName("Apply rejects a null cover letter")
+    void apply_letterNull() {
+        assertThatThrownBy(() -> applicationService.apply(5, candidate(), null))
+                .isInstanceOf(BadRequestException.class);
+
+        verifyNoInteractions(jobRepository, applicationRepository);
+    }
+
+    @Test
+    @DisplayName("Apply accepts a cover letter of exactly 100 characters")
+    void apply_letterExactly100() {
+        when(jobRepository.findById(5)).thenReturn(Optional.of(jobWith(JobStatus.OPEN, null)));
+        when(applicationRepository.save(any(Application.class))).thenAnswer(inv -> inv.getArgument(0));
+
+        assertThatCode(() -> applicationService.apply(5, candidate(), "x".repeat(100)))
+                .doesNotThrowAnyException();
+    }
+    private Job jobWith(JobStatus status, LocalDateTime deadline) {
+        Job job = new Job();
+        job.setId(5);
+        job.setStatus(status);
+        job.setDeadline(deadline);
+        return job;
+    }
+
+    private CandidateProfile candidate() {
+        CandidateProfile candidate = new CandidateProfile();
+        candidate.setId(7);
+        return candidate;
+    }
 }

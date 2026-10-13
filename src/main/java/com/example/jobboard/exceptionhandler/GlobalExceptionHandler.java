@@ -42,13 +42,14 @@ public class GlobalExceptionHandler {
         return buildErrorPage(e, HttpStatus.BAD_REQUEST, request);
     }
 
-    private ModelAndView buildErrorPage(Exception e,HttpStatus status,HttpServletRequest request) {
+    private ModelAndView buildErrorPage(Exception e, HttpStatus status, HttpServletRequest request) {
         ModelAndView page = new ModelAndView("error");
         page.addObject("message", e.getMessage());
         page.addObject("status", status.value());
         page.addObject("path", request.getRequestURI());
         page.addObject("error", status.getReasonPhrase());
         page.addObject("timestamp", LocalDateTime.now());
+        page.setStatus(status);
         return page;
     }
 

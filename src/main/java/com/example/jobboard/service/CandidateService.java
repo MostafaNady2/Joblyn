@@ -1,7 +1,14 @@
 package com.example.jobboard.service;
 
 
+import com.example.jobboard.entity.Application;
 import com.example.jobboard.entity.CandidateProfile;
+import com.example.jobboard.entity.Job;
+import com.example.jobboard.enums.ApplicationStatus;
+import com.example.jobboard.enums.JobStatus;
+import com.example.jobboard.exception.BadRequestException;
+import com.example.jobboard.exception.JobNotFoundException;
+import com.example.jobboard.repository.ApplicationRepository;
 import com.example.jobboard.repository.CandidateRepository;
 import com.example.jobboard.util.FileUploadUtil;
 import jakarta.transaction.Transactional;
@@ -11,6 +18,7 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
 

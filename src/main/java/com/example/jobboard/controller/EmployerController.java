@@ -112,7 +112,6 @@ public class EmployerController {
         if (bindingResult.hasErrors()) {
             model.addAttribute("companyName", employer.getCompanyName());
             model.addAttribute("employerProfile", employer);
-            model.addAttribute("job", jobForm);
             model.addAttribute("image",userService.getProfilePhotoUrl());
             return "employer/new-job";
         }

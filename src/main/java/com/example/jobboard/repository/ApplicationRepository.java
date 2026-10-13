@@ -18,4 +18,7 @@ public interface ApplicationRepository extends JpaRepository<Application, Intege
     public List<Application> findByCandidateId(int candidateId);
     @Query("SELECT COUNT(a) FROM Application a WHERE a.job.employer.id = :employerId")
     public long countApplicantsByEmployerId(@Param("employerId") int id);
+
+    @Query("SELECT COUNT(a) FROM Application a WHERE a.job.id = :jobId AND a.candidate.id = :candidateId")
+    boolean existsByJobIdAndCandidateId(int jobId, int candidateId);
 }

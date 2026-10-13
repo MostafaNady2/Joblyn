@@ -39,7 +39,7 @@ public class ApplicationSecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http.authenticationProvider(daoAuthenticationProvider());
         http.authorizeHttpRequests(auth -> auth
-                .requestMatchers("/", "/home", "/access-denied", "/login", "/register",
+                .requestMatchers("/", "/home", "/index", "/login", "/register",
                         "/css/**", "/js/**", "/images/**", "/photos/**", "/resumes/**").permitAll()
                 .requestMatchers("/jobs/list", "/jobs/*").permitAll()
                 .requestMatchers("/candidate/**").hasRole("CANDIDATE")
